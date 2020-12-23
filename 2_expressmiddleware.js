@@ -1,9 +1,5 @@
 //const express = require("express");
 import express from "express"; //최신 문법임
-import morgan from 'morgan';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 const app = express();
 //--------------------------------------------------------------
 
@@ -25,18 +21,10 @@ const handleProfile = (req, res) =>{
 
 const betweenHome = (req, res, next) => {
     console.log("Im between");
-    //res.send("not happening"); //next()대신 미들웨어에서 res.send()를하면 라우터처리함수까지 가기전에 진행이 멈춤 
     next();//다음미들웨어 or 끝단으로 보내는것임
 };
 
-app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : true}));
-app.use(helmet());//보안에 특화
 app.use(betweenHome);
-app.use(morgan("dev")); //로깅에특화
-
-
 //app.use를 사용하면 모든 경로에대해 betweenHome미들웨어를 실행시킬수있다.(접속하면 안되는 IP를 ,라우터처리전에 거르는 용도로도 쓸수있음)
 //라우터등록이 안되있는 경로에 대해서도 반응함, localhost:4000/lkweunlaksjdfnlaiskejf 라고 적어도 반응한다는 말임
 
