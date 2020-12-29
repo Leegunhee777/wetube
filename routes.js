@@ -1,3 +1,5 @@
+import { userDetail } from "./controller/userController";
+
 // Global
 const HOME ="/";
 
@@ -29,12 +31,28 @@ const routes = {
     logout : LOGOUT,
     search : SEARCH,
     users : USERS,
-    userDetail : USER_DETAIL,
+    userDetail : id =>{
+        if(id){
+            return `/users/${id}`;  //파라미터가 들어오는상황
+        }
+        else{
+            return USER_DETAIL;   //파라미터가 들어오지 않는 상황
+        }
+    },
     editProfile : EDIT_PROFILE,
     changePassword : CHANGE_PASSWORD,
     videos : VIDEOS,
     upload : UPLOAD,
-    videoDetail : VIDEO_DETAIL,
+    
+    videoDetail : id => {
+        if(id){
+            return `/videos/${id}`;
+        }
+        else{
+            return VIDEO_DETAIL;
+        }
+    },
+
     editVideo : EDIT_VIDEO,
     deleteVideo :  DELETE_VIDEO
 };

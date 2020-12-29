@@ -8,8 +8,10 @@ import globalRouter from './routers/globalRouter';
 import userRouter from './routers/userRouter';
 import videoRouter from './routers/videoRouter';
 import routes from "./routes";
+import {localsMiddleware} from "./middlewares";
 const app = express();
 //--------------------------------------------------------------
+app.use(helmet());//보안에 특화
 
 app.set("view engine","pug");
 //보여줄 HTML파일들은 기본값으로 /views라는 폴더안에 저장해야함
@@ -21,15 +23,24 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 //사용자가 웹사이트로 전달하는 정보들을 검사하는 미들웨어임
 //request 정보에서 form 이나 json 형태로 된 body를 검사함
+//bodyParser가 있어야 client의 request.body를 볼수있음
 app.use(bodyParser.urlencoded({extended : true}));
-app.use(helmet());//보안에 특화
+
 app.use(morgan("dev")); //로깅에 특화
 
+app.use(function(req, res, next) {
+    res.setHeader("Content-Security-Policy", "script-src 'self' https://archive.org");
+    return next();
+    }); //비디오 안열리는 상황 처리를 위한것
+
+app.use(localsMiddleware);
+//밑의 라우터들에 적용하고싶으면 그것들 위에 선언해야함
+
 app.use(routes.home,globalRouter); //경로와, 라우터를 지정해주고있음
-//http:localhost:4000 경로에 대한 처리를 담고있음
+//http:localhost:4000 경로에 대한 처리는 globalRouter에서 처리할거에요~~를 담고있음
 app.use(routes.users,userRouter);
-//http:localhost:4000/user 경로에 대한 처리를 담고있음
+//http:localhost:4000/user 경로에 대한 처리는 userRouter에서 처리할거에요~~를 담고있음
 app.use(routes.videos,videoRouter);
-//http:localhost:4000/videos 경로에 대한 처리를 담고있음
+//http:localhost:4000/videos 경로에 대한 처리는 videoRouter에서 처리할거에요~~를 담고있음
                     
 export default app;
