@@ -17,6 +17,22 @@ app.set("view engine","pug");
 //보여줄 HTML파일들은 기본값으로 /views라는 폴더안에 저장해야함
 //pug를 사용하기위한 셋팅작업
 
+app.use("/uploads", express.static("uploads"));
+//express.static(): -주어진 폴더에서 file을 전달하는 middleware임-  을 이용함
+//즉,이제 '/uploads'경로면 'uploads'라는 폴더안으로 들어가진다는말임
+//이처리를 해줘야 uploads폴더안에있는 동영상파일들이 정상작동함
+
+//한마디로 mongoDB에서 
+//video데이터값중 fileUrl값을보면
+//uploads\videos\070e9323a372a4d7007edcf65c99b875 이라는 스트링값으로 존재한다.
+//videoContorller에서 Video디비값 filesUrl을 사용하여 동영상렌더에 사용하는데,
+//디비값인 uploads\videos\070e9323a372a4d7007edcf65c99b875 은 아직은 단순한 String일뿐이다.
+//아직은 단순한 String값이기 때문에 스트링값으로 동영상을 재생시킬수없다. 
+//우리가 가지고있는 실제 폴더의 uploads/videos안에있는 실제 동영상파일을 이용하여야 정상재생시킬수있다.
+//고로
+//이 스트링경로값을 , express.static("uploads")를 통해 실제 uploads폴더로 매칭하여,
+//스트링경로값을 가지고 , uploads폴더내의 실제존재하는 동영상파일을 찾는식으로 진행되는것이다.
+
 app.use(cookieParser());
 //cooKie를 전달받아서 사용할 수 있도록 만들어주는 미들웨어,
 //사용자 인증 같은 곳에서 쿠키를 검사할 때 사용함
