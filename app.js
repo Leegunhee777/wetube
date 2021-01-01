@@ -11,7 +11,9 @@ import routes from "./routes";
 import {localsMiddleware} from "./middlewares";
 const app = express();
 //--------------------------------------------------------------
-app.use(helmet());//보안에 특화
+app.use(helmet({
+    contentSecurityPolicy:false,
+}));//보안에 특화
 
 app.set("view engine","pug");
 //보여줄 HTML파일들은 기본값으로 /views라는 폴더안에 저장해야함
@@ -33,6 +35,9 @@ app.use("/uploads", express.static("uploads"));
 //이 스트링경로값을 , express.static("uploads")를 통해 실제 uploads폴더로 매칭하여,
 //스트링경로값을 가지고 , uploads폴더내의 실제존재하는 동영상파일을 찾는식으로 진행되는것이다.
 
+app.use("/static",express.static("static"));
+//   /static을 만나면 내 프로젝트 폴더의 static폴더로 매칭해줌 (변환된 static폴더내의 .js와,.css를 서버에 인식시키기위한 행위)
+
 app.use(cookieParser());
 //cooKie를 전달받아서 사용할 수 있도록 만들어주는 미들웨어,
 //사용자 인증 같은 곳에서 쿠키를 검사할 때 사용함
@@ -44,10 +49,10 @@ app.use(bodyParser.urlencoded({extended : true}));
 
 app.use(morgan("dev")); //로깅에 특화
 
-app.use(function(req, res, next) {
-    res.setHeader("Content-Security-Policy", "script-src 'self' https://archive.org");
-    return next();
-    }); //비디오 안열리는 상황 처리를 위한것
+//app.use(function(req, res, next) {
+ //   res.setHeader("Content-Security-Policy", "script-src 'self' https://archive.org");
+  //  return next();
+   // }); //비디오 안열리는 상황 처리를 위한것
 
 app.use(localsMiddleware);
 //밑의 라우터들에 적용하고싶으면 그것들 위에 선언해야함

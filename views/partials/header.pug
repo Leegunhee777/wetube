@@ -1,25 +1,26 @@
 header.header
-    div.header__column
-        a(href = routes.home)
-            i.fab.fa-youtube
-    div.header__cloumn
-        form(action=routes.search , method = "get")
-            input(type="text", placeholder="Search by term." ,name ="term")
-            
-    div.header__cloumn
-        ul
-            if !user.isAuthenticated
-                li
-                    a(href=routes.join) Join
-                li
-                    a(href=routes.login) Log IN
-            else
-                li  
-                    a(href=`/videos${routes.upload}`) Upload
-                    //href=routes.upload 이렇게쓰면http://localhost:4000/upload 로 이동함
-                    //우리는 http://localhost:4000/videos/upload 로 이동해야하기때문에.!!주의!!!
-                    //href= `/videos/${routes.upload}` 이렇게 바꿔줘야함               
-                li  
-                    a(href=routes.userDetail(user.id)) Profile  
-                li  
-                    a(href=routes.logout) Log Out
+    .header__wrapper
+        .header__column
+            a(href=routes.home)
+                i.fab.fa-youtube
+        .header__column
+            form(action=routes.search, method="get")
+                input(type="text", placeholder="Search by term...", name="term")
+        .header__column
+            ul
+                if !loggedUser
+                    li
+                        a(href=routes.join) Join
+                    li
+                        a(href=routes.login) Log In
+                else 
+                    li
+                        a(href=`/videos${routes.upload}`) Upload
+                        //href=routes.upload 이렇게쓰면http://localhost:4000/upload 로 이동함
+                        //우리는 http://localhost:4000/videos/upload 로 이동해야하기때문에.!!주의!!!
+                        //href= `/videos/${routes.upload}` 이렇게 바꿔줘야함            
+                                
+                    li
+                        a(href=routes.me) Profile
+                    li
+                        a(href=routes.logout) Log Out
