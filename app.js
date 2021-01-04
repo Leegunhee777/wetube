@@ -2,15 +2,28 @@
 import express from "express"; //최신 문법임
 import morgan from 'morgan';
 import helmet from 'helmet';
+import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import passport from "passport";
+import session from "express-session";
 import globalRouter from './routers/globalRouter';
 import userRouter from './routers/userRouter';
 import videoRouter from './routers/videoRouter';
 import routes from "./routes";
+import MongoStore from "connect-mongo";
 import {localsMiddleware} from "./middlewares";
+
+import dotenv from "dotenv";
+dotenv.config();
+
+import "./passport";
 const app = express();
+
+const CokieStore = MongoStore(session);
+
 //--------------------------------------------------------------
+
 app.use(helmet({
     contentSecurityPolicy:false,
 }));//보안에 특화
@@ -49,13 +62,33 @@ app.use(bodyParser.urlencoded({extended : true}));
 
 app.use(morgan("dev")); //로깅에 특화
 
+app.use( //이설정이 되어있어야!!!로그인시에 Appliction의 Cookies에서 값을 볼수있음!!!!!!!!!!!!!!!!!connect.sid라는 이름의 쿠키를 갖게된다.
+    session({ //쿠키,도메인, 유효기간등..옵션설정가능
+        secret:process.env.COOKIE_SECRET, //secret은 아무 문자열로서, 쿠키에 들어있는 session ID를 암호화하기위한것임
+        resave:true,
+        saveUninitialized: false,
+        store: new CokieStore({mongooseConnection: mongoose.connection})//이 쿠키저장소에 저장하게 되는것임, 이 저장소를 mongo와 연결시켜줘야함
+    })
+)
+app.use(passport.initialize());
+//passport초기화도하고
+//passport가 제 스스로 쿠키를 들여다봐서, 그 쿠키정보에 해당하는 사용자를 찾아줄거임
+app.use(passport.session());
+//session은 쿠키를해독함,해독된 후엔 passport로 넘어가게됨 
+//passport로 넘겨지면, deserializeUser라는 함수가 실행됨
+//deserialize로 사용자를 식별하게되면 passport는 방금 찾은 그 사용자를
+//middleware나 routes의 request object에 할당하게 된다.
+//그래서 이제 어느 route에서든 로그인한 사용자가 누구인지 체크할수있게됨
+
+app.use(localsMiddleware);
+//밑의 라우터들에 적용하고싶으면 그것들 위에 선언해야함+
+//그리고 passport는 자기가 찾은 그 사용자를 request의 object, 즉
+//req.user로 만들어 미들웨어에적용함<middlewares.js>참고
+
 //app.use(function(req, res, next) {
  //   res.setHeader("Content-Security-Policy", "script-src 'self' https://archive.org");
   //  return next();
    // }); //비디오 안열리는 상황 처리를 위한것
-
-app.use(localsMiddleware);
-//밑의 라우터들에 적용하고싶으면 그것들 위에 선언해야함
 
 app.use(routes.home,globalRouter); //경로와, 라우터를 지정해주고있음
 //http:localhost:4000 경로에 대한 처리는 globalRouter에서 처리할거에요~~를 담고있음

@@ -2,19 +2,20 @@ import express from "express";
 import routes from "../routes";
 import {users, userDetail,editProfile,changePassword}
 from "../controller/userController";
+import { onlyPrivate } from "../middlewares";
 
 const userRouter = express.Router();
 
-userRouter.get(routes.editProfile,editProfile);
+userRouter.get(routes.editProfile, onlyPrivate, editProfile);
 
-userRouter.get(routes.changePassword, changePassword);
+userRouter.get(routes.changePassword, onlyPrivate, changePassword);
+
+userRouter.get(routes.userDetail(), userDetail);
 //http://localhost:4000/users/change-password 로 접근해야함
 //routes.changePassword가 가지고있는 값은 "/change-password" 이라
 //localhost:4000/change-password 로 접근해야하는거아니야? 라고 생각할수있지만 ㄴㄴ
 //express.Router();에 의해서 userRouter는 /users에 대한 경로를 담당하고있으므로,
 //앞에 /users가 생략된거라고 생각해도 무방함 
-userRouter.get(routes.userDetail(), userDetail);
-
 
 export default userRouter;
 

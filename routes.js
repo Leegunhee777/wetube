@@ -14,6 +14,8 @@ const USERS = "/users";
 const USER_DETAIL = "/:id";
 const EDIT_PROFILE = "/edit-profile";
 const CHANGE_PASSWORD = "/change-password";
+const ME = "/me";
+
 
 //Videos
 
@@ -23,6 +25,12 @@ const UPLOAD = "/upload";
 const VIDEO_DETAIL = "/:id"; //해당 :id는/ params로 접근하면 id 추출할수있음
 const EDIT_VIDEO = "/:id/edit";
 const DELETE_VIDEO = "/:id/delete";
+
+//Github
+
+const GITHUB = "/auth/github";
+const GITHUB_CALLBACK = "/auth/github/callback";
+
 
 const routes = {
     home : HOME,
@@ -72,7 +80,10 @@ const routes = {
                                   //해당 경로에서 서버에서 -> client측에 보여줄 data(GET처리)가 설정이 안되있다는것임 ,이걸설정해줘야 해당 경로에서 무언가 보인다.
                                   //1)만하고 2)를 안하면 문제가 생긴다는 말임
         }
-    }
+    },
+    gitHub: GITHUB,
+    githubCallback: GITHUB_CALLBACK,
+    me:ME
 };
 
 export default routes;
