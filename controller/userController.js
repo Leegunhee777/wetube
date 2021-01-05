@@ -107,7 +107,8 @@ export const logout = (req, res) => {
 }
 
 export const getMe = (req, res) =>  {
-    res.render("userDetail",{pageTitle:"User Detail", user:req.user});
+   
+    res.render("userDetail",{pageTitle:"User Detail", user : req.user});
 }
 //로그인된후에 모든 request에 대해 로그인유저의 쿠키정보가 req.user로 넘어오기때문에 이를 이용하려함
 //req.user는 현재 로그인된 사용자임
@@ -122,5 +123,47 @@ export const userDetail = async (req, res) =>  {
     }
 };
 
-export const editProfile = (req, res) => res.render("editProfile",{pageTitle:"Edit Profile"});
-export const changePassword = (req, res) => res.render("changePassword",{pageTitle:"Change Password"});
+export const getEditProfile = (req, res) => res.render("editProfile",{pageTitle:"Edit Profile"});
+
+//프로필수정하기에 대한 처리임
+export const postEditProfile = async (req, res) =>{
+    try{
+        //req.user로 넘어오는 로그인유저의 id를 기반으로 User테이블에서 찾은뒤
+        //업데이트할것을 두번째 파라미터로 넘겨주면 업데이트됨
+        await User.findByIdAndUpdate(req.user._id,{
+            name:req.body.name,
+            email :req.body.email,
+            avatarUrl: req.file ? req.file.path : req.user.avatarUrl
+            //프로필업데이트에서, 사진파일을 업데이트한다면 첨부된 파일이 있을것이므로,
+            //업데이트 파일사진을 보여주고, 사진파일 업데이트는 안했을경우는 기존에 있던 사진을 넘겨준다
+        });
+        res.redirect(routes.me);
+    }catch(error){
+        res.redirect(routes.editProfile);
+    }
+ };
+
+
+export const getChangePassword = (req, res) => {
+    res.render("changePassword",{pageTitle:"Change Password"});
+}
+
+export const postChangePassword = async (req, res) => {
+    const {oldPassword, newPassword, newPassword1} = req.body;
+    try{
+            if(newPassword !== newPassword1){
+                res.status(400);
+                res.redirect(`/users/${routes.changePassword}`);
+                return;
+            }
+            //정상적인 진행일경우의 처리과정임 ,passport-local-mongoose (설치했으니),에서 제공해주는 함수를이용해 손쉽게 비빌번호를바꿀거임
+            //https://www.npmjs.com/package/passport-local-mongoose참고
+            await req.user.changePassword(oldPassword,newPassword); //이거면 비번바뀜
+            res.redirect(routes.me);
+    }catch(error){
+        //기존패스워드를 잘못입력한경우는 여기서 걸러짐
+        console.log("현재비번잘못입력");
+        res.status(400);
+        res.redirect(`/users/${routes.changePassword}`);
+    }
+}

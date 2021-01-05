@@ -10,12 +10,17 @@ export const uploadVideo = multerVideo.single('videoFile');
 // ex)client 쪽의 form태그안의 input(type="file", id="file", name="videoFile", required=true, accept="video/*")
 //<routers/videoRouter.js참고>
 
+const multerAvatar = multer({dest : "uploads/avatars/"});
+export const uploadAvatar = multerAvatar.single('avatar');
+
+
 export const localsMiddleware = (req, res, next) =>{
-    console.log(req.user);
-    //console.log(req);
     res.locals.siteName = "WeTube";
     res.locals.routes = routes;
-    res.locals.loggedUser = req.user || null;   //존재하지않다면 빈 object를 넘김
+    res.locals.loggedUser = req.user || null;   
+    console.log('미들웨어:');
+    console.log(req.user);
+    //존재하지않다면 빈 object를 넘김
     //passport가 사용자를 로그인 시킬때, passport는 쿠키, serialize, deserialize등의
     //기능을 다 지원해주는 것은 물론이고, user가 담긴 object를 요청(request)에도 올려준다.
     //즉,
