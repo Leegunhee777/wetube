@@ -106,23 +106,35 @@ export const logout = (req, res) => {
     res.redirect(routes.home);
 }
 
-export const getMe = (req, res) =>  {
-   
-    res.render("userDetail",{pageTitle:"User Detail", user : req.user});
-}
+//////////////////////////////////////////////////////////////////
+//둘다 User Detail을 보여주긴함 상황이다름
+//나의프로필버튼누를때의상황
+export const getMe = async (req, res) =>  {
+    try{
+        const user = await User.findById(req.user._id).populate('videos');
+        res.render("userDetail",{pageTitle:"User Detail", user : user});
+    }catch(error){
+        res.redirect(routes.home);
+    }
+};
 //로그인된후에 모든 request에 대해 로그인유저의 쿠키정보가 req.user로 넘어오기때문에 이를 이용하려함
 //req.user는 현재 로그인된 사용자임
 
+
+
+//비디오detail에서 업로드한사람을 클릭했을때의 상황
 export const userDetail = async (req, res) =>  {
     const{id} = req.params;
     try{
-        const user = await User.findById(id);
+        const user = await User.findById(id).populate('videos');
+        console.log('타인의프로필접근정보궁금한것');
+        console.log(user);
         res.render("userDetail",{pageTitle:"User Detail", user:user});
     }catch(error){
         res.redirect(routes.home);
     }
 };
-
+////////////////////////////////////////////////////////////////
 export const getEditProfile = (req, res) => res.render("editProfile",{pageTitle:"Edit Profile"});
 
 //프로필수정하기에 대한 처리임

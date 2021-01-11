@@ -31,6 +31,15 @@ const DELETE_VIDEO = "/:id/delete";
 const GITHUB = "/auth/github";
 const GITHUB_CALLBACK = "/auth/github/callback";
 
+//API server와 그냥 통신하기위한 URL이 될것임
+//사이트를이용하는 user가 접근할수있는 url도 아니고, 해당 url에 어떤것도 렌더 할 수 없다.
+//이 라우터는 유저가 어떤곳을 클릭해서 들어가는 그 라우터개념이 아님
+const API = "/api";
+const REGISTER_VIEW = "/:id/view";
+
+//Comment
+const ADD_COMMENT = "/:id/comment";
+
 
 const routes = {
     home : HOME,
@@ -83,7 +92,10 @@ const routes = {
     },
     gitHub: GITHUB,
     githubCallback: GITHUB_CALLBACK,
-    me:ME
+    me:ME,
+    api: API,
+    registerView: REGISTER_VIEW,
+    addComment: ADD_COMMENT
 };
 
 export default routes;

@@ -2,11 +2,12 @@ extends layouts/main.pug
 
 block content   
     .video-detail__container
-        .video__player
+        .video__player#jsVideoPlayer
             video(src=`/${video.fileUrl}` controls=true)
         .video__info
-            a(href=routes.editVideo(video.id)) 
-                button Edit video
+            if loggedUser && video.creator.id === loggedUser.id
+                a(href=routes.editVideo(video.id)) 
+                    button Edit video
             h5.video__title= video.title
             if video.views === 1
                 span.video__views 1 view
@@ -14,9 +15,23 @@ block content
                 span.video__views #{video.view} views
             
             p.video__description= video.description
+            
+            .video__author
+                |Uploaded by
+                a(href= routes.userDetail(video.creator._id))= video.creator.name
            
         .video__comments
             if video.comments.length === 1 
-                span.video__comment-number 1 comment(단수)
+                span.video__comment-number
+                    span#jsCommentNumber1 1 
+                    |comment(단수)
             else
-                span.video__comment-number #{video.comments.length} comments(복수)
+                span.video__comment-number
+                    span#jsCommentNumber= video.comments.length 
+                    |comments(복수)
+            form.add__comment#jsAddComment
+                input(type="text", placeholder="Add a commnet" name = "comment")
+            ul.video__comments-list#jsCommentList
+                each comment in video.comments.reverse()
+                    li
+                        span= comment.text

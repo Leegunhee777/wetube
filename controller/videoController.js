@@ -1,5 +1,6 @@
 import routes from "../routes";
 import Video from "../models/Video"; 
+import Comment from "../models/Comment";
 
 export const home = async(req, res) => {
     try{
@@ -38,7 +39,7 @@ export const getUpload = (req, res) => {
     res.render("upload",{pageTitle:"upload"});
 }
 
-export const postUpload = async(req, res) => {
+export const postUpload = async (req, res) => {
    // const {videoFile, title, description} = req.body;
     //client에서 post하면 일반적인경우 body의 내용을 서버에서는 client의 input 태그의 name속성 값으로 조회해볼수있음
     //BUT!!!!!!!
@@ -46,20 +47,25 @@ export const postUpload = async(req, res) => {
     //서버에서 req.file이라는 변수명으로 접근할수있음(변수명고정임)
     console.log(req.body);
     console.log(req.file);
-    const newVideo = await Video.create({
+    const newVideo = await Video.create({ //비디오 생성할때 생성한 <비디오테이블>에 유저 id도 추가해주고
         fileUrl: req.file.path,
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        creator: req.user.id
     });
-    console.log(newVideo);
-   res.redirect(routes.videoDetail(newVideo.id));
+    req.user.videos.push(newVideo._id); //<유저테이블에>, 본인이올린 비디오 정보도 추가,req.user에는 User.js의 데이터정보가 다 날아옴, 그중 videos필드에 , 배열에 값을 추가해준것임
+    req.user.save();
+   
+    res.redirect(routes.videoDetail(newVideo.id));
    //테이블은 각 데이터마다 고유의 id를 가지고있음, 이를 활용한것임
 }
 
 export const videoDetail =  async(req, res) => {
-    console.log(req.params);// /:id형식에서의 URL로 부터 정보를 가져오는 방법 params
+    //console.log(req.params);// /:id형식에서의 URL로 부터 정보를 가져오는 방법 params
 try{
-    const video = await Video.findById(req.params.id); //디비의 오브젝트고유의id값으로 찾아내는방법
+    const video = await Video.findById(req.params.id).populate("creator").populate("comments"); //디비의 오브젝트고유의id값으로 오브젝트 전체를 뽑아내는방법
+    //console.log("이후");                                                    //populate는 objectID타입data 에만 쓸수있음
+    //console.log(video);
     res.render("videoDetail",{pageTitle: video.title, video: video});
 }
 catch(error){
@@ -67,10 +73,15 @@ catch(error){
     res.redirect(routes.home); //존재하지않는 URL로 가면 홈으로 이동
 }
 }
+
 export const getEditVideo = async(req, res) => {
     try{
         const video = await Video.findById(req.params.id);
-        res.render("editVideo",{pageTitle: `Edit ${video.title}`, video});
+        if(video.creator != req.user.id){ //!==로 비교하면안되는게 creator(object)과 user.id(string)는 내용은 같으나 Type이 다름 고로, != 로 내용비교만해야함
+            throw Error(); //try문안에서 throw Error()를하면, 자동적으로 catch로 감
+        }else{
+            res.render("editVideo",{pageTitle: `Edit ${video.title}`, video});
+        }
     }catch(error){
         res.redirect(routes.home);
     }
@@ -92,9 +103,54 @@ export const postEditVideo = async(req, res) => {
 
 export const deleteVideo = async(req, res) => {
     try{
-        await Video.findOneAndRemove({_id: req.params.id});
+        const video = await Video.findById(req.params.id);
+        if(video.creator != req.user.id)
+        {
+            throw Error();
+        }else{
+            await Video.findOneAndRemove({_id: req.params.id});
+        }
+       
     }catch(error){
         console.log(error);
     }
     res.redirect(routes.home); //성공하던 실패하던 home으로감
+}
+
+
+//Register Video View
+//만약누가 이 URL로 온다면 우린id를 얻어서 views를 +1 해줄것임
+//그냥 database만 변경하는기능임
+
+export const postRegisterView = async(req, res) =>{
+    const {id} = req.params;
+    try{
+        const video = await Video.findById(id);
+        video.view = video.view +1;
+        video.save();
+       
+        res.status(200);
+    }catch(error){
+        res.status(400);
+        res.end();
+    }finally{
+        res.end();
+    }
+}
+
+//Comment관련
+export const postAddComment = async (req, res) => {
+    try{
+        const newComment = await Comment.create({    //create으로 디비에 저장까지됨!
+            text: req.body.comment,                 //comment 데이터생성
+            creator: req.user.id
+        });
+        const video = await Video.findById(req.params.id); //비디오를 찾아서, comments프로퍼티에 값추가
+        video.comments.push(newComment._id);
+        video.save();
+    }catch{
+        res.status(400);
+    }finally{
+        res.end();
+    }
 }

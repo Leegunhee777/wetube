@@ -20,6 +20,7 @@ export const localsMiddleware = (req, res, next) =>{
     res.locals.loggedUser = req.user || null;   
     console.log('미들웨어:');
     console.log(req.user);
+    
     //존재하지않다면 빈 object를 넘김
     //passport가 사용자를 로그인 시킬때, passport는 쿠키, serialize, deserialize등의
     //기능을 다 지원해주는 것은 물론이고, user가 담긴 object를 요청(request)에도 올려준다.

@@ -10,6 +10,7 @@ import session from "express-session";
 import globalRouter from './routers/globalRouter';
 import userRouter from './routers/userRouter';
 import videoRouter from './routers/videoRouter';
+import apiRouter from './routers/apiRouter';
 import routes from "./routes";
 import MongoStore from "connect-mongo";
 import {localsMiddleware} from "./middlewares";
@@ -96,5 +97,8 @@ app.use(routes.users,userRouter);
 //http:localhost:4000/user 경로에 대한 처리는 userRouter에서 처리할거에요~~를 담고있음
 app.use(routes.videos,videoRouter);
 //http:localhost:4000/videos 경로에 대한 처리는 videoRouter에서 처리할거에요~~를 담고있음
-                    
+
+app.use(routes.api, apiRouter);
+//api처리를 위한 라우터임 http:localhost:4000/api 경로에 대한 처리는
+//apiRouter에서 처리할거에요~~를 담고있음
 export default app;

@@ -5,7 +5,19 @@ const UserSchema = new mongoose.Schema({
     email: String,
     avatarUrl: String,
     facebookId: Number,
-    githubId: Number
+    githubId: Number,
+    comments:[ //나는 Comment 테이블관련 오브젝트 타입의 필드를설정할거야~~~
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"Comment" 
+        }
+    ],
+    videos:[
+        { //나는Video 테이블관련 오브젝트 타입의 필드를설정할거야~~~
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"Video" 
+        }
+    ]
 });
 
 UserSchema.plugin(passportLocalMongoose,{usernameField:'email'});

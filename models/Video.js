@@ -19,13 +19,17 @@ const VideoSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    comments:[
+    comments:[   //나는 Comment 테이블관련 오브젝트 타입의 필드를설정할거야~~~
         {
             type: mongoose.Schema.Types.ObjectId,
             ref:"Comment" //댓글구현방식1. : 각 비디오마다, 댓글리스트(array)를가지고있는방법
                            //[1,2,4,7] 이런식으로 해당 Video와 연결된 Comment들의ID가 저장된다.
         }
-    ]
+    ],
+    creator: { //나는 User 테이블관련 오브젝트 타입의 필드를설정할거야~~~
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
 });
 
 //스키마를 이용하여 모델만들기
